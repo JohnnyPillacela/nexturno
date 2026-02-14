@@ -1,9 +1,5 @@
-import Image from "next/image";
+import LandingPage from '@/components/landing-page';
 
 export default function Home() {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-
-    </div>
-  );
+  return <LandingPage />;
 }
