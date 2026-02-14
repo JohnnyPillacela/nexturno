@@ -10,6 +10,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        none: "",
         destructive:
           "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:
@@ -19,9 +20,17 @@ const buttonVariants = cva(
         ghost:
           "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
         link: "text-primary underline-offset-4 hover:underline",
+        /** Hero CTAs: use with size="hero" for landing page pill buttons */
+        hero:
+          "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg text-base font-semibold [&_svg:not([class*='size-'])]:size-5",
+        heroOutline:
+          "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground text-base font-medium [&_svg:not([class*='size-'])]:size-5 [&_svg]:text-primary dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",
+        /** Hero CTAs: pill shape for landing pages, use with variant="hero" or "heroOutline" */
+        hero:
+          "h-14 rounded-full px-8 has-[>svg]:px-4",
         xs: "h-6 gap-1 rounded-md px-2 text-xs has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3",
         sm: "h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
         lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
@@ -32,7 +41,7 @@ const buttonVariants = cva(
       },
     },
     defaultVariants: {
-      variant: "default",
+      variant: "none",
       size: "default",
     },
   }
