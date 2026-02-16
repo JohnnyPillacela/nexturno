@@ -24,6 +24,29 @@ function pushSnapshot(state: SessionState): SessionSnapshot[] {
   return newUndo.slice(0, 3); // Cap at 3
 }
 
+function applyUndo(state: SessionState): SessionState {
+  if (state.undo.length === 0) {
+    console.warn('Undo stack empty');
+    return state; // No change
+  }
+
+  // Pop most recent snapshot
+  const [mostRecent, ...remainingUndo] = state.undo;
+
+  // Restore snapshot + keep remaining undo stack
+  const nextState: SessionState = {
+    ...mostRecent,
+    undo: remainingUndo,
+  };
+
+  // Validate invariants
+  if (process.env.NODE_ENV === 'development') {
+    validateInvariants(nextState);
+  }
+
+  return nextState;
+}
+
 /**
  * Apply an event to the current session state and return the next state.
  * This is a pure function with no side effects.
@@ -34,6 +57,8 @@ export function applyEvent(state: SessionState, event: Event): SessionState {
       return applyDeclareWinner(state, event.winnerTeamId);
     case 'DECLARE_TIE':
       return applyDeclareTie(state);
+    case 'UNDO':
+      return applyUndo(state);
     default:
       // Unknown event type - return state unchanged
       return state;
