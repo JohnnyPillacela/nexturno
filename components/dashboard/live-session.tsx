@@ -144,7 +144,7 @@ export default function LiveSession({ session, onStartNewSession }: LiveSessionP
       <section className="space-y-3">
         <div className="grid grid-cols-2 gap-3">
           <Button variant="default" size="lg" className="rounded-xl" disabled>
-            Winner A
+            Winner: {aTeam.name}
           </Button>
           <Button
             variant="secondary"
@@ -152,7 +152,7 @@ export default function LiveSession({ session, onStartNewSession }: LiveSessionP
             className="rounded-xl"
             disabled
           >
-            Winner B
+            Winner: {bTeam.name}
           </Button>
         </div>
         <div className="grid grid-cols-2 gap-3">
