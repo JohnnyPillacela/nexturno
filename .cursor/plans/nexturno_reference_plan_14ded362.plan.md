@@ -69,29 +69,79 @@ Invariants: always 2 on field; queue no duplicates; on-field teams not in queue;
 
 ---
 
-## Current Project State
+## Progress — What’s Implemented
 
-- **Stack**: Next.js 16, React 19, Tailwind 4, TypeScript
-- **App**: Default Next.js page at `[app/page.tsx](app/page.tsx)`; no session logic or routing yet
-- **Design system**: `[app/globals.css](app/globals.css)` has design tokens (colors, fonts, radius)
-- **Reference UI**: `johnny/components/landing/` — Hero (match card mockup, queue chips, action buttons), Header, Features, etc.
+### M1 — Landing Page (M1a, M1b, M1c complete; M1d pending)
+
+**M1a — Landing Page UI Skeleton**
+
+- Landing page component `components/landing-page.tsx` with Hero, headline, tagline, buttons
+- CSS variables only (no hardcoded hex)
+- Feature badges: No account needed, Works offline
+
+**M1b — Basic Navigation**
+
+- Dashboard page at `/dashboard` with structured placeholder (match card, queue, action buttons — all disabled)
+- "Start Session" navigates to dashboard via `Link`
+- Layout based on johnny Hero mockup
+
+**M1c — Storage + TTL Detection**
+
+- `lib/storage/`: `constants.ts` (keys, TTL 24h, types), `loader.ts` (load, validate, hasActiveSession)
+- PRIMARY/BACKUP fallback, auto-cleanup of expired sessions
+- Landing page conditional UI: "Continue Session", "Start New Session" (disabled) when active session exists
+- Client-side detection after hydration
+
+**M1d — Not yet:** "Start New Session" confirm + wipe behavior
+
+---
+
+## Current Architecture
+
+```
+app/
+├── page.tsx                 (renders <LandingPage />)
+└── dashboard/
+    └── page.tsx             (structured placeholder)
+
+components/
+└── landing-page.tsx         (conditional UI based on session)
+
+lib/storage/
+├── constants.ts             (storage keys, TTL, types)
+└── loader.ts                (load/validate, TTL check)
+
+johnny/                      (gitignored, reference only)
+├── components/landing/       (UI mockups)
+└── ui-mocks/
+```
+
+**Stack:** Next.js 16, React 19, Tailwind 4, TypeScript. Design tokens in `app/globals.css`.
+
+---
+
+## Status Snapshot
+
+**Working:** Landing UI, landing → dashboard nav, TTL-based session detection, PRIMARY/BACKUP storage, conditional buttons, expired-session cleanup
+
+**Not yet:** Start New Session confirm/wipe (M1d), Setup UI (M2), live session data (M3), rotation logic (M4), tie popup (M5), undo (M6), settings (M7), rolling TTL updates (M8)
 
 ---
 
 ## Milestone Map (Reference)
 
 
-| #   | Milestone          | Key deliverables                                                                        |
-| --- | ------------------ | --------------------------------------------------------------------------------------- |
-| 1   | Landing Page       | Buttons, storage envelope + TTL check, no reducer                                       |
-| 2   | Setup UI           | Team count, colors, goal cap, initial order, create session → localStorage → Live       |
-| 3   | Live Session       | Display match + queue; buttons visible (can be no-op)                                   |
-| 4   | Rules Engine       | `applyEvent(state, event)`; DECLARE_WINNER, DECLARE_TIE, RESOLVE_TIE_STAY; wire buttons |
-| 5   | Tie Decision Popup | 3-team popup when queue length == 1                                                     |
-| 6   | Undo               | 3 snapshots, persist undo stack                                                         |
-| 7   | Settings Panel     | Edit, Add, Remove (guards), Reset                                                       |
-| 8   | Rolling TTL        | Activity tracker, throttle 30s, update lastActiveAt                                     |
-| 9   | (Optional)         | Upstash Redis backup mirror — not now                                                   |
+| #   | Milestone          | Key deliverables                                                                        | Status       |
+| --- | ------------------ | --------------------------------------------------------------------------------------- | ------------ |
+| 1   | Landing Page       | Buttons, storage envelope + TTL check, no reducer                                       | M1a–M1c done |
+| 2   | Setup UI           | Team count, colors, goal cap, initial order, create session → localStorage → Live       | Pending      |
+| 3   | Live Session       | Display match + queue; buttons visible (can be no-op)                                   | Pending      |
+| 4   | Rules Engine       | `applyEvent(state, event)`; DECLARE_WINNER, DECLARE_TIE, RESOLVE_TIE_STAY; wire buttons | Pending      |
+| 5   | Tie Decision Popup | 3-team popup when queue length == 1                                                     | Pending      |
+| 6   | Undo               | 3 snapshots, persist undo stack                                                         | Pending      |
+| 7   | Settings Panel     | Edit, Add, Remove (guards), Reset                                                       | Pending      |
+| 8   | Rolling TTL        | Activity tracker, throttle 30s, update lastActiveAt                                     | Pending      |
+| 9   | (Optional)         | Upstash Redis backup mirror — not now                                                   | Not required |
 
 
 ---
