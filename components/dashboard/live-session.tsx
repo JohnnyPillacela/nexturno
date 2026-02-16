@@ -224,8 +224,14 @@ export default function LiveSession({ session, onStartNewSession, onDispatchEven
           >
             Tie
           </Button>
-          <Button variant="outline" size="lg" className="rounded-xl" disabled>
-            Undo
+          <Button
+            variant="outline"
+            size="lg"
+            className="rounded-xl"
+            disabled={session.undo.length === 0}
+            onClick={() => onDispatchEvent({ type: 'UNDO' })}
+          >
+            Undo {session.undo.length > 0 && `(${session.undo.length})`}
           </Button>
         </div>
       </section>
