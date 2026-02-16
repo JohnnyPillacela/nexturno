@@ -266,47 +266,52 @@ OnField `t1 vs t2`, queue `[t3]`, user declares Tie:
 
 ## Progress — What’s Implemented
 
-### M1 — Landing Page (M1a, M1b, M1c complete; M1d pending)
+### M1 — Landing Page + Persistence Detection (Complete)
 
-**M1a — Landing Page UI Skeleton**
+**Landing**
 
-- Landing page component `components/landing-page.tsx` with Hero, headline, tagline, buttons
-- CSS variables only (no hardcoded hex)
-- Feature badges: No account needed, Works offline
+- Always shows "Start Session"; conditionally "Continue Session" and "Start New Session" when valid session exists
+- Landing does not auto-enter (user must click)
 
-**M1b — Basic Navigation**
+**Persistence detection**
 
-- Dashboard page at `/dashboard` with structured placeholder (match card, queue, action buttons — all disabled)
-- "Start Session" navigates to dashboard via `Link`
-- Layout based on johnny Hero mockup
+- PRIMARY → BACKUP fallback; TTL check (24h); cleanup of expired session
 
-**M1c — Storage + TTL Detection**
+**Routing**
 
-- `lib/storage/`: `constants.ts` (keys, TTL 24h, types), `loader.ts` (load, validate, hasActiveSession)
-- PRIMARY/BACKUP fallback, auto-cleanup of expired sessions
-- Landing page conditional UI: "Continue Session", "Start New Session" (disabled) when active session exists
-- Client-side detection after hydration
+- `/dashboard` is the canonical live-session route
 
-**M1d — Start New Session (Confirm + Wipe) + Dashboard Empty State** (updated)
+---
 
-- **Goal:** Make `/dashboard` the single live hub. If no active session, dashboard guides user into setup/settings instead of dead-ending.
-- **Deliver:**
-**1) Landing**
-  - Always show "Start Session" → routes to `/dashboard`
-  - If valid session exists → "Continue Session" → `/dashboard`
-  - If valid session exists → "Start New Session" → confirm dialog → on confirm: clear PRIMARY + BACKUP + envelope → route to `/dashboard`
-  **2) Dashboard**
-  - If valid session exists: render existing live-session placeholder (A vs B, queue, buttons disabled)
-  - If no valid session: render empty state:
-    - Headline: "No active session"
-    - Primary CTA: "Start Setup" or "Open Settings" (placeholder for M2/M7 entry)
-    - Secondary CTA: "Back to Landing"
-    - Minimal Settings panel placeholder area
-- **Non-goals:** No full Setup (M2); no reducer (M4), tie popup (M5), undo (M6); no rolling TTL (M8).
-- **Impl notes:**
-  - **Storage:** Add `clearSessionStorage()` in `lib/storage/` — remove PRIMARY, BACKUP, envelope/session meta keys. Landing uses `window.confirm(...)` then clears + routes `/dashboard`.
-  - **Dashboard conditional UI:** Reuse `hasActiveSession()` / `loadSession()`. If session: live placeholder; else: empty state + Settings placeholder. "Start Setup" / "Open Settings" can route to `/dashboard/settings` placeholder OR open inline panel (minimal).
-  - **Routes:** No `/setup`. `/dashboard` is canonical for both continue and start.
+### M2 — Setup UI + Create Session + Persist (Complete)
+
+**Setup route**
+
+- `/setup` route renders setup form (clean separation; added as UX improvement)
+
+**Setup form**
+
+- Team count selector (min 3, default 4)
+- Auto-generates Team 1..N (IDs via `crypto.randomUUID()`)
+- Optional colors per team
+- Goal cap selector
+- Start Match: creates full `SessionState` (onField = Team1 vs Team2, queue = Team3..N, phase = normal, rules.goalCap), saves PRIMARY + BACKUP, `router.replace('/dashboard')`
+- Cancel → landing
+
+**Storage layer**
+
+- `lib/storage/constants.ts` — canonical types (SessionState, etc.)
+- `lib/storage/session.ts` — `createSession()`
+- `lib/storage/writer.ts` — save session (PRIMARY + BACKUP)
+- `lib/storage/loader.ts` — load full session + TTL logic
+
+**Dashboard behavior**
+
+- If session exists → show LiveSession component
+- If no session → redirect to `/setup`
+- Start New Session → confirm → clear storage → redirect to `/setup`
+
+**Outcome:** Landing → Dashboard → Setup → Dashboard → LiveSession placeholder (end-to-end flow works)
 
 ---
 
@@ -315,16 +320,22 @@ OnField `t1 vs t2`, queue `[t3]`, user declares Tie:
 ```
 app/
 ├── page.tsx                 (renders <LandingPage />)
+├── setup/
+│   └── page.tsx             (setup form)
 └── dashboard/
-    └── page.tsx             (conditional: live placeholder OR empty state)
+    └── page.tsx             (LiveSession if session; else redirect to /setup)
 
 components/
-└── landing-page.tsx         (conditional UI based on session)
+├── landing-page.tsx         (conditional UI based on session)
+└── dashboard/
+    ├── live-session.tsx     (match card, queue, action buttons — placeholder)
+    └── setup-form.tsx       (team count, colors, goal cap, Start/Cancel)
 
 lib/storage/
-├── constants.ts             (storage keys, TTL, types)
+├── constants.ts             (storage keys, TTL, types, canonical types)
+├── session.ts               (createSession)
 ├── loader.ts                (load/validate, TTL check)
-└── writer.ts                (optional: clearSessionStorage — added in M1d)
+└── writer.ts                (save session, clearSessionStorage)
 
 johnny/                      (gitignored, reference only)
 ├── components/landing/       (UI mockups)
@@ -337,36 +348,67 @@ johnny/                      (gitignored, reference only)
 
 ## Status Snapshot
 
-**Working:** Landing UI, landing → dashboard nav, TTL-based session detection, PRIMARY/BACKUP storage, conditional buttons, expired-session cleanup (M1a–M1c).
+**Status:** On track (ahead). Dedicated `/setup` route added as clean UX improvement; all locked requirements respected.
 
-**Next:** M1d (Start New Session confirm + wipe + dashboard empty state).
+**Working:** M1 complete (landing, persistence, Continue/Start New); M2 complete (setup form, session creation, PRIMARY/BACKUP persist, redirect flow).
 
-**Not yet:** M2–M8 per milestone map above.
+**Next:** M3 — LiveSession display real session data.
+
+**Not yet:** M4–M8 per milestone map below.
+
+---
+
+## Requirements Check (Locked items still respected)
+
+- Min 3 teams supported
+- No login / no backend DB
+- Single-device, local-first persistence
+- PRIMARY + BACKUP snapshot redundancy
+- TTL expiration behavior (rolling activity is M8)
+- `/dashboard` canonical live session screen
+- Setup creates initial order correctly (Team 1 vs Team 2, queue Team 3..N)
+
+**Notes for later:** Undo cap 3 (M6); tie popup only for 3-team case (M5); rolling TTL is M8.
+
+---
+
+## What Is NOT Implemented Yet
+
+
+| Area                                         | Milestone | Status  |
+| -------------------------------------------- | --------- | ------- |
+| LiveSession real data (names, colors, queue) | M3        | Next    |
+| Rotation logic (Winner/Tie transitions)      | M4        | Pending |
+| Tie decision popup (3-team only)             | M5        | Pending |
+| Undo (cap 3)                                 | M6        | Pending |
+| Settings panel (Edit/Add/Remove/Reset)       | M7        | Pending |
+| Rolling TTL (activity-based)                 | M8        | Pending |
+
 
 ---
 
 ## Milestone Map (Reference) — Sub-milestones
 
-**M1 — Landing Page** (M1a ✅ M1b ✅ M1c ✅ M1d next)
+**M1 — Landing Page** (complete)
 
-- M1a: Landing UI skeleton, non-functional buttons
-- M1b: Start Session → `/dashboard` placeholder
-- M1c: Storage presence + TTL check; Continue / Start New (disabled)
-- M1d: Start New Session confirm + wipe → route to `/dashboard`; dashboard empty state when no session ("No active session", Start Setup/Open Settings placeholder, Back to Landing)
+- Landing UI, Start/Continue/Start New, persistence detection, TTL, PRIMARY/BACKUP
 
-**M2 — Setup UI + Create Session**
+**M2 — Setup UI + Create Session** (complete)
 
-- M2a: Team count (min 3, default 4), auto-label Team 1..N, initial order preview
-- M2b: Optional colors per team
-- M2c: Goal cap rule (timer "coming soon")
-- M2d: Start creates SessionState, persists envelope, routes to `/dashboard` (entry from empty-state CTA)
+- Team count (min 3, default 4), auto Team 1..N, optional colors, goal cap
+- Start creates SessionState, persists envelope, routes to `/dashboard`
+- Cancel returns to landing
 
-**M3 — Live Session Screen (display only)** on `/dashboard`
+**M3 — Live Session Screen (display only)** on `/dashboard` (next)
 
-- M3a: Render onField (A vs B) from persisted state; empty state if no session
-- M3b: Render queue list
-- M3c: Action buttons visible (no-op)
-- M3d: Settings entry placeholder
+- M3a: Render onField (A vs B) from real SessionState — names, colors (no hardcoded placeholders)
+- M3b: Render ordered queue list (real teams)
+- M3c: Show goal cap summary (`rules.goalCap`)
+- M3d: Support dynamic team counts (3, 4, 6, etc.)
+- M3e: Action buttons visible but no-op (Winner A/B, Tie, Undo — disabled or "coming soon")
+- M3f: Safe fallback if session invalid
+
+**M3 recommended structure:** Dashboard loads session, passes as prop to LiveSession; LiveSession resolves IDs → teams via lookup map.
 
 **M4 — Rules Engine + Wire Buttons**
 
@@ -404,7 +446,7 @@ johnny/                      (gitignored, reference only)
 
 ## Next Action
 
-**M1d** — Start New Session (confirm + wipe) + dashboard empty state.
+**M3** — LiveSession display real data: replace placeholder with session-driven rendering (names, colors, queue, goal cap); keep action buttons present but disabled/no-op.
 
 ---
 
