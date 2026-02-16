@@ -3,12 +3,14 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { SessionState } from '@/lib/storage/constants';
 
 interface LiveSessionProps {
+  session: SessionState;
   onStartNewSession: () => void;
 }
 
-export default function LiveSession({ onStartNewSession }: LiveSessionProps) {
+export default function LiveSession({ session, onStartNewSession }: LiveSessionProps) {
   return (
     <div className="mx-auto max-w-2xl px-5 py-6 space-y-5">
       {/* Header */}
