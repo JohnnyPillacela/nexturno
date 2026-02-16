@@ -31,7 +31,7 @@ const COLOR_OPTIONS = [
 ] as const;
 
 export default function SetupForm() {
-  const [goalCap, setGoalCap] = useState<string>('');
+  const [goalCap, setGoalCap] = useState<string>('1');
   const [teamCount, setTeamCount] = useState<string>('4');
   const [teamColors, setTeamColors] = useState<Record<number, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
