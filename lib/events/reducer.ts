@@ -1,8 +1,28 @@
 // lib/events/reducer.ts
 
-import { SessionState } from '@/lib/storage/constants';
+import { SessionState, SessionSnapshot } from '@/lib/storage/constants';
 import { Event } from './types';
 import { validateInvariants } from './invariants';
+
+/**
+ * Push the current state to the undo stack, capped at 3 snapshots.
+ * Returns a new undo array with the current state prepended.
+ */
+function pushSnapshot(state: SessionState): SessionSnapshot[] {
+  const snapshot: SessionSnapshot = {
+    version: state.version,
+    teams: state.teams,
+    onField: state.onField,
+    queue: state.queue,
+    phase: state.phase,
+    tieDecision: state.tieDecision,
+    rules: state.rules,
+    // undo is omitted (SessionSnapshot type)
+  };
+
+  const newUndo = [snapshot, ...state.undo];
+  return newUndo.slice(0, 3); // Cap at 3
+}
 
 /**
  * Apply an event to the current session state and return the next state.
