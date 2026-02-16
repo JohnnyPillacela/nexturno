@@ -3,25 +3,28 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { hasActiveSession } from '@/lib/storage/loader';
-import { clearSessionStorage, createNewSession } from '@/lib/storage/writer';
-import SetupForm from '@/components/dashboard/setup-form';
+import { useRouter } from 'next/navigation';
+import { loadSession } from '@/lib/storage/loader';
+import { clearSessionStorage } from '@/lib/storage/writer';
 import LiveSession from '@/components/dashboard/live-session';
 
 export default function DashboardPage() {
-  const [isNewSession, setIsNewSession] = useState(false);
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
+  const [session, setSession] = useState<ReturnType<typeof loadSession>>(null);
 
   useEffect(() => {
-    const active = hasActiveSession();
-    if (!active) {
-      createNewSession();
-      setIsNewSession(true);
+    const loaded = loadSession();
+
+    if (!loaded) {
+      // No full session - redirect to setup
+      router.replace('/setup');
     } else {
-      setIsNewSession(false);
+      setSession(loaded);
     }
+
     setIsLoading(false);
-  }, []);
+  }, [router]);
 
   const handleStartNewSession = () => {
     const confirmed = window.confirm(
@@ -30,12 +33,11 @@ export default function DashboardPage() {
 
     if (confirmed) {
       clearSessionStorage();
-      createNewSession();
-      setIsNewSession(true);
+      router.replace('/setup');
     }
   };
 
-  if (isLoading) {
+  if (isLoading || !session) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <p className="text-muted-foreground">Loading...</p>
@@ -45,11 +47,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {isNewSession ? (
-        <SetupForm />
-      ) : (
-        <LiveSession onStartNewSession={handleStartNewSession} />
-      )}
+      <LiveSession onStartNewSession={handleStartNewSession} />
     </div>
   );
 }
