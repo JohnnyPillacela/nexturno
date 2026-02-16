@@ -4,6 +4,7 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import {
   Carousel,
   CarouselContent,
@@ -110,8 +111,13 @@ export default function LiveSession({ session, onStartNewSession, onDispatchEven
 
       {/* Match Card */}
       <section className="bg-card border border-border rounded-2xl p-5">
-        <div className="text-center text-xs font-medium text-muted-foreground mb-4 uppercase tracking-wider">
-          Current Match
+        <div className="text-center mb-4 space-y-1">
+          <div className="text-xs font-bold text-foreground uppercase tracking-wider">
+            Current Match
+          </div>
+          <Badge className="px-4 py-1.5 text-base font-bold shadow-md">
+            # {session.matchNumber}
+          </Badge>
         </div>
         <div className="flex items-center justify-between">
           <div className="text-center flex-1">
