@@ -43,32 +43,13 @@ export default function DashboardPage() {
     );
   }
 
-  // New session: show setup/settings placeholder (no game UI yet)
-  if (isNewSession) {
-    return (
-      <div className="min-h-screen bg-background">
-        <div className="mx-auto max-w-2xl px-5 py-12 space-y-8">
-          <header className="text-center space-y-1">
-            <h1 className="text-2xl font-semibold text-foreground">
-              Set up your game
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              Configure settings for this session
-            </p>
-          </header>
-
-          <section className="border border-border rounded-2xl p-6 bg-card space-y-6">
-            <SetupForm />
-          </section>
-        </div>
-      </div>
-    );
-  }
-
-  // Resumed session: show live session UI
   return (
     <div className="min-h-screen bg-background">
-      <LiveSession onStartNewSession={handleStartNewSession} />
+      {isNewSession ? (
+        <SetupForm />
+      ) : (
+        <LiveSession onStartNewSession={handleStartNewSession} />
+      )}
     </div>
   );
 }
