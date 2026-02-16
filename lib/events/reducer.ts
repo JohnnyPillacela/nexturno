@@ -73,6 +73,7 @@ function applyDeclareWinner(state: SessionState, winnerTeamId: string): SessionS
       bTeamId: nextTeamId,
     },
     queue: [...remainingQueue, loserId],
+    undo: pushSnapshot(state), // Push before transition
   };
 
   // Validate invariants in dev mode
@@ -105,6 +106,7 @@ function applyDeclareTie(state: SessionState): SessionState {
       state.onField.aTeamId,
       state.onField.bTeamId,
     ],
+    undo: pushSnapshot(state), // Push before transition
   };
 
   // Validate invariants in dev mode
