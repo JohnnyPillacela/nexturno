@@ -173,7 +173,7 @@ export default function LiveSession({ session, onStartNewSession, onDispatchEven
             }}
             className="w-full bg-card rounded-2xl p-2 border border-border"
           >
-            <CarouselContent className="p-2">
+            <CarouselContent className="p-2 px-10 md:px-2">
               {queueTeams.map((team, i) => (
                 <CarouselItem key={team.id} className="pl-2 basis-auto">
                   <div
@@ -188,8 +188,8 @@ export default function LiveSession({ session, onStartNewSession, onDispatchEven
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious className="-left-10 size-8 bg-card shadow-md hover:bg-accent" />
-            <CarouselNext className="-right-10 size-8 bg-card shadow-md hover:bg-accent" />
+            <CarouselPrevious className="left-1 md:-left-10 size-6 md:size-8 bg-card shadow-md hover:bg-accent" />
+            <CarouselNext className="right-1 md:-right-10 size-6 md:size-8 bg-card shadow-md hover:bg-accent" />
           </Carousel>
         )}
       </section>
