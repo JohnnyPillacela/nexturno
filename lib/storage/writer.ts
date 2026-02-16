@@ -1,6 +1,25 @@
 // lib/storage/writer.ts
 
-import { STORAGE_KEYS } from './constants';
+import { STORAGE_KEYS, SessionSnapshot } from './constants';
+
+/**
+ * Creates and persists a new minimal session to localStorage.
+ * Used when the user has no existing session (start fresh).
+ */
+export function createNewSession(): void {
+  const snapshot: SessionSnapshot = {
+    version: 1,
+    lastActiveAt: Date.now(),
+  };
+  const json = JSON.stringify(snapshot);
+  try {
+    localStorage.setItem(STORAGE_KEYS.PRIMARY, json);
+    localStorage.setItem(STORAGE_KEYS.BACKUP, json);
+    console.log('New session created');
+  } catch (error) {
+    console.error('Error creating session:', error);
+  }
+}
 
 /**
  * Clears all session-related data from localStorage.
