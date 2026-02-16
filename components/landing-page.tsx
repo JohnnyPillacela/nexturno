@@ -1,9 +1,21 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { hasActiveSession } from '@/lib/storage/loader';
 import { Button } from '@/components/ui/button';
 import { Empty } from '@/components/ui/empty';
 import { ArrowRight, Check, Play } from 'lucide-react';
 import Link from 'next/link';
 
 export default function LandingPage() {
+  const [hasSession, setHasSession] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    setHasSession(hasActiveSession());
+    setIsLoading(false);
+  }, []);
+
   return (
     <section className="relative min-h-screen pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden bg-background">
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
@@ -34,6 +46,18 @@ export default function LandingPage() {
                   <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
+              {!isLoading && hasSession && (
+                <>
+                  <Link href="/dashboard">
+                    <Button variant="heroOutline" size="hero">
+                      Continue Session
+                    </Button>
+                  </Link>
+                  <Button variant="outline" size="hero" disabled>
+                    Start New Session
+                  </Button>
+                </>
+              )}
               <Button variant="heroOutline" size="hero">
                 <Play className="mr-2 w-5 h-5" />
                 See how it works
