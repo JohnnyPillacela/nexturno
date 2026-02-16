@@ -11,6 +11,7 @@ import { validateInvariants } from './invariants';
 function pushSnapshot(state: SessionState): SessionSnapshot[] {
   const snapshot: SessionSnapshot = {
     version: state.version,
+    matchNumber: state.matchNumber,
     teams: state.teams,
     onField: state.onField,
     queue: state.queue,
@@ -93,6 +94,7 @@ function applyDeclareWinner(state: SessionState, winnerTeamId: string): SessionS
 
   const nextState: SessionState = {
     ...state,
+    matchNumber: state.matchNumber + 1,
     onField: {
       aTeamId: winnerTeamId,
       bTeamId: nextTeamId,
@@ -122,6 +124,7 @@ function applyDeclareTie(state: SessionState): SessionState {
   // Both current teams go to back of queue
   const nextState: SessionState = {
     ...state,
+    matchNumber: state.matchNumber + 1,
     onField: {
       aTeamId: nextATeamId,
       bTeamId: nextBTeamId,
