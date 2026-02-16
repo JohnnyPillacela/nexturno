@@ -206,7 +206,13 @@ export default function LiveSession({ session, onStartNewSession, onDispatchEven
           </Button>
         </div>
         <div className="grid grid-cols-2 gap-3">
-          <Button variant="outline" size="lg" className="rounded-xl" disabled>
+          <Button 
+            variant="outline" 
+            size="lg" 
+            className="rounded-xl"
+            onClick={() => onDispatchEvent({ type: 'DECLARE_TIE' })}
+            disabled={queueTeams.length < 2}
+          >
             Tie
           </Button>
           <Button variant="outline" size="lg" className="rounded-xl" disabled>
