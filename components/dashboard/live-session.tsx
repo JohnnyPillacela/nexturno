@@ -182,14 +182,25 @@ export default function LiveSession({ session, onStartNewSession, onDispatchEven
       {/* Action Buttons */}
       <section className="space-y-3">
         <div className="grid grid-cols-2 gap-3">
-          <Button variant="default" size="lg" className="rounded-xl" disabled>
+          <Button 
+            variant="default" 
+            size="lg" 
+            className="rounded-xl"
+            onClick={() => onDispatchEvent({ 
+              type: 'DECLARE_WINNER', 
+              winnerTeamId: aTeam.id 
+            })}
+          >
             Winner: {aTeam.name}
           </Button>
           <Button
             variant="secondary"
             size="lg"
             className="rounded-xl"
-            disabled
+            onClick={() => onDispatchEvent({ 
+              type: 'DECLARE_WINNER', 
+              winnerTeamId: bTeam.id 
+            })}
           >
             Winner: {bTeam.name}
           </Button>
