@@ -7,10 +7,10 @@ todos:
     status: completed
   - id: create-live-session
     content: Create components/dashboard/live-session.tsx with match/queue/buttons UI
-    status: in_progress
+    status: completed
   - id: refactor-dashboard
     content: Refactor app/dashboard/page.tsx to be a smart router using the new components
-    status: pending
+    status: completed
 isProject: false
 ---
 
