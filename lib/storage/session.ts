@@ -24,6 +24,7 @@ export function createSession(params: {
 
   const sessionState: SessionState = {
     version: 1,
+    matchNumber: 1,
     teams,
     onField: {
       aTeamId: team1.id,

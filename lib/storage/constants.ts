@@ -35,6 +35,7 @@ export interface TieDecision {
 // SessionState type
 export interface SessionState {
   version: 1;
+  matchNumber: number;
   teams: Team[];
   onField: OnField;
   queue: string[]; // team IDs
