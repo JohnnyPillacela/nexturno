@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createSession } from '@/lib/storage/session';
 import { saveSession } from '@/lib/storage/writer';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
@@ -53,7 +54,7 @@ export default function SetupForm() {
       });
 
       saveSession(sessionState);
-      router.refresh();
+      router.push('/dashboard');
     } catch (error) {
       console.error('Error starting match:', error);
       alert('Failed to start match. Please try again.');
@@ -181,8 +182,8 @@ export default function SetupForm() {
 
       {/* Action buttons */}
       <div className="flex justify-end gap-3">
-        <Button variant="outline" size="lg" className="rounded-xl">
-          Cancel
+        <Button variant="outline" size="lg" className="rounded-xl" asChild>
+          <Link href="/">Cancel</Link>
         </Button>
         <Button
           size="lg"
