@@ -4,13 +4,13 @@ overview: "Create the event system foundation: define Event types, implement app
 todos:
   - id: m4a-event-types
     content: Create lib/events/types.ts with Event type definitions
-    status: pending
+    status: completed
   - id: m4a-invariants
     content: Create lib/events/invariants.ts with validateInvariants function
-    status: pending
+    status: completed
   - id: m4a-reducer
     content: Create lib/events/reducer.ts with applyEvent and DECLARE_WINNER logic
-    status: pending
+    status: completed
 isProject: false
 ---
 
