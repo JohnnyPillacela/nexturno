@@ -134,8 +134,8 @@ export default function LiveSession({ session, onStartNewSession }: LiveSessionP
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious className="-left-10 size-8 bg-background shadow-md hover:bg-accent" />
-            <CarouselNext className="-right-10 size-8 bg-background shadow-md hover:bg-accent" />
+            <CarouselPrevious className="-left-10 size-8 bg-card shadow-md hover:bg-accent" />
+            <CarouselNext className="-right-10 size-8 bg-card shadow-md hover:bg-accent" />
           </Carousel>
         )}
       </section>
