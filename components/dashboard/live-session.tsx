@@ -2,6 +2,7 @@
 
 'use client';
 
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Carousel,
@@ -10,7 +11,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@/components/ui/carousel';
-import { SessionState, Team } from '@/lib/storage/constants';
+import { SessionState, Team, STORAGE_KEYS } from '@/lib/storage/constants';
 
 interface LiveSessionProps {
   session: SessionState;
@@ -18,6 +19,25 @@ interface LiveSessionProps {
 }
 
 export default function LiveSession({ session, onStartNewSession }: LiveSessionProps) {
+  const [showStorageDebug, setShowStorageDebug] = useState(false);
+  const [storageData, setStorageData] = useState<{
+    primary: string | null;
+    backup: string | null;
+  }>({ primary: null, backup: null });
+
+  // Load storage data for debugging
+  const loadStorageData = () => {
+    if (typeof window !== 'undefined') {
+      const primary = localStorage.getItem(STORAGE_KEYS.PRIMARY);
+      const backup = localStorage.getItem(STORAGE_KEYS.BACKUP);
+      setStorageData({ primary, backup });
+    }
+  };
+
+  useEffect(() => {
+    loadStorageData();
+  }, []);
+
   // Create teamMap lookup for O(1) team resolution
   const teamMap: Record<string, Team> = {};
   session.teams.forEach((team) => {
@@ -180,6 +200,67 @@ export default function LiveSession({ session, onStartNewSession }: LiveSessionP
             Undo
           </Button>
         </div>
+      </section>
+
+      {/* TEMP: Storage Debug Visualizer */}
+      <section className="border-t border-dashed border-border pt-5 mt-5">
+        <div className="flex items-center justify-between mb-3">
+          <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            🔧 Storage Debug (Temp)
+          </div>
+          <div className="space-x-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={loadStorageData}
+              className="h-7 text-xs"
+            >
+              Refresh
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowStorageDebug(!showStorageDebug)}
+              className="h-7 text-xs"
+            >
+              {showStorageDebug ? 'Hide' : 'Show'}
+            </Button>
+          </div>
+        </div>
+
+        {showStorageDebug && (
+          <div className="space-y-3">
+            {/* Primary Storage */}
+            <div className="bg-card border border-border rounded-lg p-3">
+              <div className="text-xs font-semibold text-foreground mb-2 flex items-center justify-between">
+                <span>Primary Storage</span>
+                <span className="text-muted-foreground font-mono">
+                  {STORAGE_KEYS.PRIMARY}
+                </span>
+              </div>
+              <pre className="text-xs bg-muted p-3 rounded overflow-x-auto max-h-60 overflow-y-auto">
+                {storageData.primary
+                  ? JSON.stringify(JSON.parse(storageData.primary), null, 2)
+                  : '(empty)'}
+              </pre>
+            </div>
+
+            {/* Backup Storage */}
+            <div className="bg-card border border-border rounded-lg p-3">
+              <div className="text-xs font-semibold text-foreground mb-2 flex items-center justify-between">
+                <span>Backup Storage</span>
+                <span className="text-muted-foreground font-mono">
+                  {STORAGE_KEYS.BACKUP}
+                </span>
+              </div>
+              <pre className="text-xs bg-muted p-3 rounded overflow-x-auto max-h-60 overflow-y-auto">
+                {storageData.backup
+                  ? JSON.stringify(JSON.parse(storageData.backup), null, 2)
+                  : '(empty)'}
+              </pre>
+            </div>
+          </div>
+        )}
       </section>
     </div>
   );
