@@ -28,6 +28,23 @@ export default function LiveSession({ session, onStartNewSession }: LiveSessionP
   const aTeam = teamMap[session.onField.aTeamId];
   const bTeam = teamMap[session.onField.bTeamId];
 
+  // Safe fallback if teams not found
+  if (!aTeam || !bTeam) {
+    return (
+      <div className="mx-auto max-w-2xl px-5 py-6">
+        <div className="text-center space-y-4">
+          <p className="text-destructive font-semibold">Session data is invalid</p>
+          <p className="text-sm text-muted-foreground">
+            The session may be corrupted. Please start a new session.
+          </p>
+          <Button onClick={onStartNewSession}>
+            Start New Session
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   // Resolve queue IDs to Team objects
   const queueTeams = session.queue.map(teamId => teamMap[teamId]);
 
