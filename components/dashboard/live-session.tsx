@@ -95,9 +95,6 @@ export default function LiveSession({ session, onStartNewSession }: LiveSessionP
             </div>
           </div>
         </div>
-        <p className="text-xs text-muted-foreground text-center mt-4">
-          Match Card (Coming Soon)
-        </p>
       </section>
 
       {/* Queue Section */}
