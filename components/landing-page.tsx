@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Empty } from '@/components/ui/empty';
 import { ArrowRight, Check, Play } from 'lucide-react';
+import Link from 'next/link';
 
 export default function LandingPage() {
   return (
@@ -27,10 +28,12 @@ export default function LandingPage() {
             </p>
 
             <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Button variant="hero" size="hero" className="group">
-                Start Session
-                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
+              <Link href="/dashboard">
+                <Button variant="hero" size="hero" className="group">
+                  Start Session
+                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
               <Button variant="heroOutline" size="hero">
                 <Play className="mr-2 w-5 h-5" />
                 See how it works
