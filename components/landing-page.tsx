@@ -42,22 +42,10 @@ export default function LandingPage() {
             <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <Link href="/dashboard">
                 <Button variant="hero" size="hero" className="group">
-                  Start Session
+                  {!isLoading && hasSession ? 'Continue Session' : 'Start Session'}
                   <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
-              {!isLoading && hasSession && (
-                <>
-                  <Link href="/dashboard">
-                    <Button variant="heroOutline" size="hero">
-                      Continue Session
-                    </Button>
-                  </Link>
-                  <Button variant="outline" size="hero" disabled>
-                    Start New Session
-                  </Button>
-                </>
-              )}
               <Button variant="heroOutline" size="hero">
                 <Play className="mr-2 w-5 h-5" />
                 See how it works
