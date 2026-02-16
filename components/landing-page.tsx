@@ -40,7 +40,7 @@ export default function LandingPage() {
             </p>
 
             <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Link href="/dashboard">
+              <Link href={!isLoading && hasSession ? '/dashboard' : '/setup'}>
                 <Button variant="hero" size="hero" className="group">
                   {!isLoading && hasSession ? 'Continue Session' : 'Start Session'}
                   <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
