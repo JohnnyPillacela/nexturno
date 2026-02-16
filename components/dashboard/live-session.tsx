@@ -21,6 +21,9 @@ export default function LiveSession({ session, onStartNewSession }: LiveSessionP
   const aTeam = teamMap[session.onField.aTeamId];
   const bTeam = teamMap[session.onField.bTeamId];
 
+  // Resolve queue IDs to Team objects
+  const queueTeams = session.queue.map(teamId => teamMap[teamId]);
+
   // Helper function to generate team abbreviation
   const getTeamAbbreviation = (teamName: string): string => {
     const words = teamName.trim().split(/\s+/);
@@ -103,18 +106,22 @@ export default function LiveSession({ session, onStartNewSession }: LiveSessionP
           Up Next
         </div>
         <div className="flex gap-2">
-          {['C', 'D', 'E'].map((team, i) => (
-            <div
-              key={team}
-              className={`flex-1 py-2 rounded-xl text-center text-sm font-semibold border ${
-                i === 0
-                  ? 'bg-primary/10 text-primary border-primary/30'
-                  : 'bg-card text-muted-foreground border-border'
-              }`}
-            >
-              {team}
-            </div>
-          ))}
+          {queueTeams.length === 0 ? (
+            <p className="text-xs text-muted-foreground">No teams in queue</p>
+          ) : (
+            queueTeams.map((team, i) => (
+              <div
+                key={team.id}
+                className={`flex-1 py-2 rounded-xl text-center text-sm font-semibold border ${
+                  i === 0
+                    ? 'bg-primary/10 text-primary border-primary/30'
+                    : 'bg-card text-muted-foreground border-border'
+                }`}
+              >
+                {team.name}
+              </div>
+            ))
+          )}
         </div>
       </section>
 
