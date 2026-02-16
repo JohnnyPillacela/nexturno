@@ -12,13 +12,15 @@ import {
   CarouselPrevious,
 } from '@/components/ui/carousel';
 import { SessionState, Team, STORAGE_KEYS } from '@/lib/storage/constants';
+import { Event } from '@/lib/events/types';
 
 interface LiveSessionProps {
   session: SessionState;
   onStartNewSession: () => void;
+  onDispatchEvent: (event: Event) => void;
 }
 
-export default function LiveSession({ session, onStartNewSession }: LiveSessionProps) {
+export default function LiveSession({ session, onStartNewSession, onDispatchEvent }: LiveSessionProps) {
   const [showStorageDebug, setShowStorageDebug] = useState(false);
   const [storageData, setStorageData] = useState<{
     primary: string | null;

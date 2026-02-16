@@ -5,8 +5,10 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { loadSession } from '@/lib/storage/loader';
-import { clearSessionStorage } from '@/lib/storage/writer';
+import { clearSessionStorage, saveSession } from '@/lib/storage/writer';
 import LiveSession from '@/components/dashboard/live-session';
+import { Event } from '@/lib/events/types';
+import { applyEvent } from '@/lib/events/reducer';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -37,6 +39,19 @@ export default function DashboardPage() {
     }
   };
 
+  const handleEvent = (event: Event) => {
+    if (!session) return;
+
+    // Apply event to get next state
+    const nextState = applyEvent(session, event);
+
+    // Persist to localStorage
+    saveSession(nextState);
+
+    // Update React state
+    setSession(nextState);
+  };
+
   if (isLoading || !session) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -49,7 +64,8 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-background">
       <LiveSession 
         session={session}
-        onStartNewSession={handleStartNewSession} 
+        onStartNewSession={handleStartNewSession}
+        onDispatchEvent={handleEvent}
       />
     </div>
   );
