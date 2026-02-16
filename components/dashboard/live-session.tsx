@@ -3,6 +3,13 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from '@/components/ui/carousel';
 import { SessionState, Team } from '@/lib/storage/constants';
 
 interface LiveSessionProps {
@@ -102,24 +109,35 @@ export default function LiveSession({ session, onStartNewSession }: LiveSessionP
         <div className="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wider">
           Up Next
         </div>
-        <div className="flex gap-2">
-          {queueTeams.length === 0 ? (
-            <p className="text-xs text-muted-foreground">No teams in queue</p>
-          ) : (
-            queueTeams.map((team, i) => (
-              <div
-                key={team.id}
-                className={`flex-1 py-2 rounded-xl text-center text-sm font-semibold border ${
-                  i === 0
-                    ? 'bg-primary/10 text-primary border-primary/30'
-                    : 'bg-card text-muted-foreground border-border'
-                }`}
-              >
-                {team.name}
-              </div>
-            ))
-          )}
-        </div>
+        {queueTeams.length === 0 ? (
+          <p className="text-xs text-muted-foreground">No teams in queue</p>
+        ) : (
+          <Carousel
+            opts={{
+              align: 'start',
+              loop: false,
+            }}
+            className="w-full bg-card rounded-2xl p-2 border border-border"
+          >
+            <CarouselContent className="p-2">
+              {queueTeams.map((team, i) => (
+                <CarouselItem key={team.id} className="pl-2 basis-auto">
+                  <div
+                    className={`min-w-[120px] py-2 rounded-xl text-center text-sm font-semibold border shadow-md ${
+                      i === 0
+                        ? 'bg-primary/10 text-primary border-primary/30'
+                        : 'bg-card text-muted-foreground border-border'
+                    }`}
+                  >
+                    {team.name}
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="-left-10 size-8 bg-background shadow-md hover:bg-accent" />
+            <CarouselNext className="-right-10 size-8 bg-background shadow-md hover:bg-accent" />
+          </Carousel>
+        )}
       </section>
 
       {/* Action Buttons */}
