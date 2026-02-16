@@ -3,7 +3,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { SessionState } from '@/lib/storage/constants';
+import { SessionState, Team } from '@/lib/storage/constants';
 
 interface LiveSessionProps {
   session: SessionState;
@@ -11,6 +11,27 @@ interface LiveSessionProps {
 }
 
 export default function LiveSession({ session, onStartNewSession }: LiveSessionProps) {
+  // Create teamMap lookup for O(1) team resolution
+  const teamMap: Record<string, Team> = {};
+  session.teams.forEach((team) => {
+    teamMap[team.id] = team;
+  });
+
+  // Resolve onField team IDs to Team objects
+  const aTeam = teamMap[session.onField.aTeamId];
+  const bTeam = teamMap[session.onField.bTeamId];
+
+  // Helper function to generate team abbreviation
+  const getTeamAbbreviation = (teamName: string): string => {
+    const words = teamName.trim().split(/\s+/);
+    if (words.length === 1) {
+      // Single word: take first 2 letters (e.g., "Red" -> "RE")
+      return teamName.substring(0, 2).toUpperCase();
+    }
+    // Multiple words: take first letter of each word (e.g., "Team 1" -> "T1")
+    return words.map((w) => w[0]).join('').toUpperCase();
+  };
+
   return (
     <div className="mx-auto max-w-2xl px-5 py-6 space-y-5">
       {/* Header */}
@@ -36,22 +57,38 @@ export default function LiveSession({ session, onStartNewSession }: LiveSessionP
         </div>
         <div className="flex items-center justify-between">
           <div className="text-center flex-1">
-            <div className="mx-auto w-14 h-14 rounded-2xl bg-primary flex items-center justify-center text-primary-foreground font-bold text-xl">
-              A
+            <div 
+              className={`mx-auto w-14 h-14 rounded-2xl flex items-center justify-center font-bold text-xl ${
+                !aTeam.color ? 'bg-primary text-primary-foreground' : ''
+              }`}
+              style={aTeam.color ? {
+                backgroundColor: aTeam.color,
+                color: '#ffffff',
+              } : undefined}
+            >
+              {getTeamAbbreviation(aTeam.name)}
             </div>
             <div className="mt-2 text-sm font-semibold text-foreground">
-              Team A
+              {aTeam.name}
             </div>
           </div>
           <div className="text-2xl font-bold text-muted-foreground px-4">
             vs
           </div>
           <div className="text-center flex-1">
-            <div className="mx-auto w-14 h-14 rounded-2xl bg-secondary text-secondary-foreground flex items-center justify-center font-bold text-xl">
-              B
+            <div 
+              className={`mx-auto w-14 h-14 rounded-2xl flex items-center justify-center font-bold text-xl ${
+                !bTeam.color ? 'bg-secondary text-secondary-foreground' : ''
+              }`}
+              style={bTeam.color ? {
+                backgroundColor: bTeam.color,
+                color: '#ffffff',
+              } : undefined}
+            >
+              {getTeamAbbreviation(bTeam.name)}
             </div>
             <div className="mt-2 text-sm font-semibold text-foreground">
-              Team B
+              {bTeam.name}
             </div>
           </div>
         </div>
