@@ -17,7 +17,7 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <section className="relative min-h-screen pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden bg-background">
+    <section className="relative min-h-screen pt-20 md:pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden bg-background">
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Hero content */}
