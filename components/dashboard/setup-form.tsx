@@ -35,7 +35,6 @@ export default function SetupForm() {
   const [teamCount, setTeamCount] = useState<string>('4');
   const [teamColors, setTeamColors] = useState<Record<number, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const router = useRouter();
   const numTeams = parseInt(teamCount, 10) || 4;
 
@@ -54,7 +53,7 @@ export default function SetupForm() {
       });
 
       saveSession(sessionState);
-      router.push('/dashboard');
+      router.replace('/dashboard');
     } catch (error) {
       console.error('Error starting match:', error);
       alert('Failed to start match. Please try again.');
@@ -186,6 +185,7 @@ export default function SetupForm() {
           <Link href="/">Cancel</Link>
         </Button>
         <Button
+          type="button"
           size="lg"
           className="rounded-xl"
           onClick={handleStartMatch}
