@@ -291,7 +291,7 @@ OnField `t1 vs t2`, queue `[t3]`, user declares Tie:
 
 **Setup form**
 
-- Team count selector (min 3, default 4)
+- Team count selector (3–8)
 - Auto-generates Team 1..N (IDs via `crypto.randomUUID()`)
 - Optional colors per team
 - Goal cap selector
@@ -311,35 +311,84 @@ OnField `t1 vs t2`, queue `[t3]`, user declares Tie:
 - If no session → redirect to `/setup`
 - Start New Session → confirm → clear storage → redirect to `/setup`
 
-**Outcome:** Landing → Dashboard → Setup → Dashboard → LiveSession placeholder (end-to-end flow works)
+**Outcome:** End-to-end flow works.
+
+---
+
+### M3 — Live Session Display (Complete)
+
+- Dashboard renders **real session data**:
+  - Actual team names + colors in match card
+  - Actual ordered queue list
+  - Handles 6+ teams (horizontal scroll / responsive)
+  - Safe fallbacks (no crashes on missing ids)
+
+---
+
+### M4a–M4b — Event System + Winner Rotation (Complete)
+
+**Event architecture**
+- Event types (`DECLARE_WINNER` wired)
+- Pure reducer: `applyEvent(state, event) -> nextState`
+- Dev-only invariant validation
+
+**Wiring**
+- LiveSession dispatches events upward (single dispatcher)
+- Dashboard: applyEvent → persist (PRIMARY + BACKUP) → setSession → re-render
+- Winner A/B buttons functional:
+  - A wins: winner stays, q1 steps in, loser to back
+  - B wins: symmetric
+- Refresh loads rotated state
 
 ---
 
 ## Current Architecture
 
+**Routes**
+- `app/page.tsx` → Landing
+- `app/setup/page.tsx` → Setup form
+- `app/dashboard/page.tsx` → Session controller (load + event handling)
+
+**Components**
+- `components/landing-page.tsx`
+- `components/dashboard/setup-form.tsx`
+- `components/dashboard/live-session.tsx`
+
+**Storage**
+- `lib/storage/constants.ts` — types + keys
+- `lib/storage/session.ts` — `createSession()`
+- `lib/storage/writer.ts` — `saveSession()` + clear
+- `lib/storage/loader.ts` — `loadSession()` + TTL check
+
+**Events**
+- `lib/events/types.ts` — event union
+- `lib/events/reducer.ts` — `applyEvent()`
+- `lib/events/invariants.ts` — `validateInvariants()` (dev)
+
 ```
 app/
-├── page.tsx                 (renders <LandingPage />)
+├── page.tsx
 ├── setup/
-│   └── page.tsx             (setup form)
+│   └── page.tsx
 └── dashboard/
-    └── page.tsx             (LiveSession if session; else redirect to /setup)
+    └── page.tsx             (session controller)
 
 components/
-├── landing-page.tsx         (conditional UI based on session)
+├── landing-page.tsx
 └── dashboard/
-    ├── live-session.tsx     (match card, queue, action buttons — placeholder)
-    └── setup-form.tsx       (team count, colors, goal cap, Start/Cancel)
+    ├── live-session.tsx     (match + queue + winner buttons)
+    └── setup-form.tsx
 
-lib/storage/
-├── constants.ts             (storage keys, TTL, types, canonical types)
-├── session.ts               (createSession)
-├── loader.ts                (load/validate, TTL check)
-└── writer.ts                (save session, clearSessionStorage)
-
-johnny/                      (gitignored, reference only)
-├── components/landing/       (UI mockups)
-└── ui-mocks/
+lib/
+├── storage/
+│   ├── constants.ts
+│   ├── session.ts
+│   ├── loader.ts
+│   └── writer.ts
+└── events/
+    ├── types.ts
+    ├── reducer.ts
+    └── invariants.ts
 ```
 
 **Stack:** Next.js 16, React 19, Tailwind 4, TypeScript. Design tokens in `app/globals.css`.
@@ -348,41 +397,43 @@ johnny/                      (gitignored, reference only)
 
 ## Status Snapshot
 
-**Status:** On track (ahead). Dedicated `/setup` route added as clean UX improvement; all locked requirements respected.
+**Status:** On track. Core MVP loop works — create session, see live match + queue, declare winner → rotation, refresh resumes, start new anytime.
 
-**Working:** M1 complete (landing, persistence, Continue/Start New); M2 complete (setup form, session creation, PRIMARY/BACKUP persist, redirect flow).
+**Working:** M1–M4b complete (landing, setup, live display, winner rotation, persistence).
 
-**Next:** M3 — LiveSession display real session data.
+**Next:** M5 — Tie button + 3-team tie decision popup.
 
-**Not yet:** M4–M8 per milestone map below.
+**Not yet:** M5–M8 per milestone map below.
 
 ---
 
-## Requirements Check (Locked items still respected)
+## Requirements Check
 
-- Min 3 teams supported
-- No login / no backend DB
-- Single-device, local-first persistence
-- PRIMARY + BACKUP snapshot redundancy
-- TTL expiration behavior (rolling activity is M8)
-- `/dashboard` canonical live session screen
-- Setup creates initial order correctly (Team 1 vs Team 2, queue Team 3..N)
+**Met:**
+- Min 3 teams (3–8 supported)
+- Exactly 2 teams on field
+- Queue ordered, no duplicates (invariant validated)
+- Local-only persistence, no backend
+- PRIMARY + BACKUP redundancy
+- TTL cleanup on load (rolling activity is M8)
+- Setup creates initial order correctly
 
-**Notes for later:** Undo cap 3 (M6); tie popup only for 3-team case (M5); rolling TTL is M8.
+**Not yet (later milestones):**
+- Tie handling (DECLARE_TIE + 3-team tieDecision popup) → M5
+- Undo capped to 3 snapshots → M6
+- Settings panel (Edit/Add/Remove/Reset) → M7
+- Rolling TTL (any interaction + throttling) → M8
 
 ---
 
 ## What Is NOT Implemented Yet
 
-
-| Area                                         | Milestone | Status  |
-| -------------------------------------------- | --------- | ------- |
-| LiveSession real data (names, colors, queue) | M3        | Next    |
-| Rotation logic (Winner/Tie transitions)      | M4        | Pending |
-| Tie decision popup (3-team only)             | M5        | Pending |
-| Undo (cap 3)                                 | M6        | Pending |
-| Settings panel (Edit/Add/Remove/Reset)       | M7        | Pending |
-| Rolling TTL (activity-based)                 | M8        | Pending |
+| Area                    | Milestone | Status  |
+| ----------------------- | --------- | ------- |
+| Tie + 3-team popup      | M5        | Next    |
+| Undo (cap 3)            | M6        | Pending |
+| Settings panel          | M7        | Pending |
+| Rolling TTL             | M8        | Pending |
 
 
 ---
@@ -395,32 +446,26 @@ johnny/                      (gitignored, reference only)
 
 **M2 — Setup UI + Create Session** (complete)
 
-- Team count (min 3, default 4), auto Team 1..N, optional colors, goal cap
+- Team count 3–8, auto Team 1..N, optional colors, goal cap
 - Start creates SessionState, persists envelope, routes to `/dashboard`
 - Cancel returns to landing
 
-**M3 — Live Session Screen (display only)** on `/dashboard` (next)
+**M3 — Live Session Display** (complete)
 
-- M3a: Render onField (A vs B) from real SessionState — names, colors (no hardcoded placeholders)
-- M3b: Render ordered queue list (real teams)
-- M3c: Show goal cap summary (`rules.goalCap`)
-- M3d: Support dynamic team counts (3, 4, 6, etc.)
-- M3e: Action buttons visible but no-op (Winner A/B, Tie, Undo — disabled or "coming soon")
-- M3f: Safe fallback if session invalid
+- Real team names + colors, ordered queue, 6+ teams support, safe fallbacks
 
-**M3 recommended structure:** Dashboard loads session, passes as prop to LiveSession; LiveSession resolves IDs → teams via lookup map.
+**M4 — Rules Engine + Wire Buttons** (M4a–M4b complete; M4c–M4d next)
 
-**M4 — Rules Engine + Wire Buttons**
-
-- M4a: Events + invariant enforcement (dev assertion)
-- M4b: DECLARE_WINNER transition
+- M4a ✅: Events + invariant enforcement
+- M4b ✅: DECLARE_WINNER wired, winner rotation functional
 - M4c: DECLARE_TIE transition (immediate rotate or tieDecision)
-- M4d: Wire dashboard buttons to dispatch events
+- M4d: Wire Tie button (Undo stays disabled until M6)
 
-**M5 — Tie Decision Popup (3-team only)**
+**M5 — Tie Button + 3-Team Tie Decision Popup** (next)
 
-- M5a: Popup when `phase === "tieDecision"` — A stays / B stays
-- M5b: RESOLVE_TIE_STAY transition, persist
+- DECLARE_TIE: queue ≥ 2 → rotate q1 vs q2; queue == 1 → enter tieDecision, show popup
+- Popup: “Who stays? A or B” → RESOLVE_TIE_STAY
+- Scope: Tie functional; Undo remains disabled
 
 **M6 — Undo (up to 3)**
 
@@ -446,7 +491,9 @@ johnny/                      (gitignored, reference only)
 
 ## Next Action
 
-**M3** — LiveSession display real data: replace placeholder with session-driven rendering (names, colors, queue, goal cap); keep action buttons present but disabled/no-op.
+**M5** — Tie button + 3-team tie decision popup. Implement DECLARE_TIE (immediate rotate or tieDecision phase), RESOLVE_TIE_STAY for 3-team case. Undo remains disabled.
+
+**Reality check:** MVP playable for win rotations; ties happen often — next blocker is Tie support.
 
 ---
 

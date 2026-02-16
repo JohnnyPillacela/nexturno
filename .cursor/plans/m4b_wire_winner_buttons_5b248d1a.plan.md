@@ -4,13 +4,13 @@ overview: Make Winner buttons functional by wiring them to dispatch DECLARE_WINN
 todos:
   - id: m4b-live-session-props
     content: Add onDispatchEvent to LiveSession props interface and import Event type
-    status: in_progress
+    status: completed
   - id: m4b-wire-buttons
     content: Remove disabled from Winner buttons and dispatch DECLARE_WINNER events
-    status: pending
+    status: completed
   - id: m4b-dashboard-handler
     content: Implement handleEvent in Dashboard with applyEvent and saveSession
-    status: pending
+    status: completed
 isProject: false
 ---
 
