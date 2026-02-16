@@ -99,6 +99,15 @@ export default function LiveSession({ session, onStartNewSession, onDispatchEven
         </Button>
       </header>
 
+      {/* 3-Team Tip Banner */}
+      {session.teams.length === 3 && (
+        <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 dark:bg-yellow-950 dark:border-yellow-800 dark:text-yellow-200 rounded-xl p-4">
+          <p className="text-sm font-medium">
+            💡 Tip: With 3 teams, resolve ties with a coin flip or rock paper scissors, then tap Winner Team 1 or Winner Team 2
+          </p>
+        </div>
+      )}
+
       {/* Match Card */}
       <section className="bg-card border border-border rounded-2xl p-5">
         <div className="text-center text-xs font-medium text-muted-foreground mb-4 uppercase tracking-wider">
@@ -211,7 +220,7 @@ export default function LiveSession({ session, onStartNewSession, onDispatchEven
             size="lg" 
             className="rounded-xl"
             onClick={() => onDispatchEvent({ type: 'DECLARE_TIE' })}
-            disabled={queueTeams.length < 2}
+            disabled={session.teams.length === 3}
           >
             Tie
           </Button>
