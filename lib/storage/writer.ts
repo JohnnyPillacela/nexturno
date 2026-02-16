@@ -1,13 +1,13 @@
 // lib/storage/writer.ts
 
-import { STORAGE_KEYS, SessionSnapshot } from './constants';
+import { STORAGE_KEYS, SessionState } from './constants';
 
 /**
  * Creates and persists a new minimal session to localStorage.
  * Used when the user has no existing session (start fresh).
  */
 export function createNewSession(): void {
-  const snapshot: SessionSnapshot = {
+  const snapshot = {
     version: 1,
     lastActiveAt: Date.now(),
   };
@@ -18,6 +18,28 @@ export function createNewSession(): void {
     console.log('New session created');
   } catch (error) {
     console.error('Error creating session:', error);
+  }
+}
+
+/**
+ * Saves a full SessionState to localStorage.
+ * Writes to both PRIMARY and BACKUP for redundancy.
+ */
+export function saveSession(sessionState: SessionState): void {
+  try {
+    const envelope = {
+      ...sessionState,
+      lastActiveAt: Date.now(),
+    };
+
+    const json = JSON.stringify(envelope);
+    localStorage.setItem(STORAGE_KEYS.PRIMARY, json);
+    localStorage.setItem(STORAGE_KEYS.BACKUP, json);
+
+    console.log('Session saved', { teams: sessionState.teams.length });
+  } catch (error) {
+    console.error('Error saving session:', error);
+    throw error;
   }
 }
 
