@@ -1,24 +1,54 @@
 ---
-name: M1d Start New + Dashboard Empty State
-overview: Wire "Start New Session" with confirm + wipe. Make dashboard the single live hub - show empty state when no session exists, guiding users to setup/settings instead of dead-ending.
+name: M1d Start New + Dashboard Auto-Creation
+overview: COMPLETED! Simplified UX - single dynamic button on landing, dashboard auto-creates sessions, shows setup UI for new sessions, Start New in dashboard header.
 todos:
   - id: storage-writer
-    content: Create lib/storage/writer.ts with clearSessionStorage function
+    content: Create lib/storage/writer.ts with clearSessionStorage AND createNewSession functions
     status: completed
-  - id: wire-start-new
-    content: Wire Start New Session button in landing-page.tsx with confirm dialog
+  - id: landing-simplification
+    content: Simplify landing to single dynamic button (Start Session / Continue Session)
     status: completed
-  - id: dashboard-empty-state
-    content: Add empty state to dashboard page when no session exists
-    status: pending
+  - id: dashboard-auto-create
+    content: Dashboard auto-creates session, shows setup UI for new sessions, Start New in header
+    status: completed
 isProject: false
 ---
 
-# M1d - Start New Session (Confirm + Wipe) + Dashboard Empty State
+# M1d - Start New Session + Dashboard Auto-Creation (COMPLETED)
 
 ## Overview
 
-Make `/dashboard` the single live hub. When no active session exists, dashboard shows an empty state that guides users into setup/settings instead of dead-ending. Complete the "Start New Session" flow with confirmation and storage clearing.
+**✅ COMPLETED with improved UX!**
+
+Made `/dashboard` the single live hub with auto-session creation. Landing page simplified to one dynamic button. Dashboard intelligently handles both new and existing sessions. "Start New Session" moved to dashboard header for better UX.
+
+**This plan documents the actual implementation**, which differs from (and improves upon) the original plan.
+
+---
+
+## Summary of Improvements
+
+**What changed from the original plan:**
+
+
+| Aspect                 | Original Plan                                                                         | Actual Implementation ✅                                                                 |
+| ---------------------- | ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| **Landing buttons**    | 3 buttons when session exists: • Start Session • Continue Session • Start New Session | **1 dynamic button:** • "Start Session" (no session) • "Continue Session" (has session) |
+| **Session creation**   | Manual setup in M2                                                                    | **Auto-created** on dashboard visit                                                     |
+| **Empty state**        | "No active session" message with disabled buttons                                     | **Setup form UI** with fields preview                                                   |
+| **Start New location** | Landing page with confirm                                                             | **Dashboard header** with confirm                                                       |
+| **User experience**    | More complex, multiple paths                                                          | **Simpler, single clear path**                                                          |
+
+
+**Why the changes are better:**
+
+- Cleaner landing page (less overwhelming)
+- Dashboard always productive (never a dead-end)
+- "Start New" where users need it (in dashboard context)
+- Auto-creation removes friction
+- Setup UI shows what's coming in M2
+
+---
 
 ## Current State After M1c
 
