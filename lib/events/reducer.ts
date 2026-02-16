@@ -12,6 +12,8 @@ export function applyEvent(state: SessionState, event: Event): SessionState {
   switch (event.type) {
     case 'DECLARE_WINNER':
       return applyDeclareWinner(state, event.winnerTeamId);
+    case 'DECLARE_TIE':
+      return applyDeclareTie(state);
     default:
       // Unknown event type - return state unchanged
       return state;
@@ -51,6 +53,38 @@ function applyDeclareWinner(state: SessionState, winnerTeamId: string): SessionS
       bTeamId: nextTeamId,
     },
     queue: [...remainingQueue, loserId],
+  };
+
+  // Validate invariants in dev mode
+  if (process.env.NODE_ENV === 'development') {
+    validateInvariants(nextState);
+  }
+
+  return nextState;
+}
+
+function applyDeclareTie(state: SessionState): SessionState {
+  // Validate: need at least 2 teams in queue
+  if (state.queue.length < 2) {
+    console.error('Cannot declare tie: need at least 2 teams in queue');
+    return state; // No change
+  }
+
+  // Get next 2 queued teams
+  const [nextATeamId, nextBTeamId, ...remainingQueue] = state.queue;
+
+  // Both current teams go to back of queue
+  const nextState: SessionState = {
+    ...state,
+    onField: {
+      aTeamId: nextATeamId,
+      bTeamId: nextBTeamId,
+    },
+    queue: [
+      ...remainingQueue,
+      state.onField.aTeamId,
+      state.onField.bTeamId,
+    ],
   };
 
   // Validate invariants in dev mode
