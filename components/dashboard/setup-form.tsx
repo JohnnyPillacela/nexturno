@@ -3,6 +3,9 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { createSession } from '@/lib/storage/session';
+import { saveSession } from '@/lib/storage/writer';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
@@ -30,11 +33,32 @@ export default function SetupForm() {
   const [goalCap, setGoalCap] = useState<string>('');
   const [teamCount, setTeamCount] = useState<string>('4');
   const [teamColors, setTeamColors] = useState<Record<number, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const router = useRouter();
   const numTeams = parseInt(teamCount, 10) || 4;
 
   const updateTeamColor = (teamIndex: number, value: string) => {
     setTeamColors((prev) => ({ ...prev, [teamIndex]: value }));
+  };
+
+  const handleStartMatch = () => {
+    setIsSubmitting(true);
+
+    try {
+      const sessionState = createSession({
+        teamCount: numTeams,
+        goalCap: goalCap ? parseInt(goalCap, 10) : null,
+        teamColors,
+      });
+
+      saveSession(sessionState);
+      router.refresh();
+    } catch (error) {
+      console.error('Error starting match:', error);
+      alert('Failed to start match. Please try again.');
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -160,8 +184,13 @@ export default function SetupForm() {
         <Button variant="outline" size="lg" className="rounded-xl">
           Cancel
         </Button>
-        <Button size="lg" className="rounded-xl" disabled>
-          Start Match
+        <Button
+          size="lg"
+          className="rounded-xl"
+          onClick={handleStartMatch}
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? 'Starting...' : 'Start Match'}
         </Button>
       </div>
     </div>
