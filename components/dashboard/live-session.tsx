@@ -12,16 +12,29 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@/components/ui/carousel';
+import { Settings } from 'lucide-react';
 import { SessionState, Team, STORAGE_KEYS } from '@/lib/storage/constants';
 import { Event } from '@/lib/events/types';
+import SettingsSheet from '@/components/dashboard/settings-sheet';
 
 interface LiveSessionProps {
   session: SessionState;
   onStartNewSession: () => void;
   onDispatchEvent: (event: Event) => void;
+  onUpdateTeam: (teamId: string, updates: { name?: string; color?: string | null }) => void;
+  onAddTeam: (name: string, color: string | null) => void;
+  onRemoveTeam: (teamId: string) => void;
 }
 
-export default function LiveSession({ session, onStartNewSession, onDispatchEvent }: LiveSessionProps) {
+export default function LiveSession({
+  session,
+  onStartNewSession,
+  onDispatchEvent,
+  onUpdateTeam,
+  onAddTeam,
+  onRemoveTeam,
+}: LiveSessionProps) {
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [showStorageDebug, setShowStorageDebug] = useState(false);
   const [storageData, setStorageData] = useState<{
     primary: string | null;
@@ -89,16 +102,34 @@ export default function LiveSession({ session, onStartNewSession, onDispatchEven
         <h1 className="text-xl font-semibold text-foreground">Dashboard</h1>
         <p className="text-sm text-muted-foreground">Session view (coming soon)</p>
 
-        {/* Start New Session button */}
-        <Button
-          variant="outline"
-          size="sm"
-          className="mt-3"
-          onClick={onStartNewSession}
-        >
-          Start New Session
-        </Button>
+        <div className="flex items-center justify-center gap-2 mt-3">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setSettingsOpen(true)}
+            aria-label="Settings"
+          >
+            <Settings className="size-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onStartNewSession}
+          >
+            Start New Session
+          </Button>
+        </div>
       </header>
+
+      <SettingsSheet
+        session={session}
+        open={settingsOpen}
+        onOpenChange={setSettingsOpen}
+        onUpdateTeam={onUpdateTeam}
+        onAddTeam={onAddTeam}
+        onRemoveTeam={onRemoveTeam}
+        onResetSession={onStartNewSession}
+      />
 
       {/* 3-Team Tip Banner */}
       {session.teams.length === 3 && (
