@@ -119,9 +119,9 @@ Let onField be `A vs B`, queue be `Q = [q1, q2, q3, ...]`.
 | -------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | **A wins**           | onField: `A vs q1`; queue: `[q2, q3, ..., B]`                                                                        |
 | **B wins**           | onField: `B vs q1`; queue: `[q2, q3, ..., A]`                                                                        |
-| **Tie, len(Q) ≥ 2**  | onField: `q1 vs q2`; queue: `[q3, q4, ..., A, B]`; no popup                                                          |
-| **Tie, len(Q) == 1** | Enter `phase = "tieDecision"`; popup "Who stays?" — A stays → `A vs C`, queue `[B]`; B stays → `B vs C`, queue `[A]` |
-| **Tie, len(Q) == 0** | Invalid (should never happen)                                                                                        |
+| **Tie, len(Q) ≥ 2**  | onField: `q1 vs q2`; queue: `[q3, q4, ..., A, B]`; no UX change                                                                 |
+| **Tie, len(Q) == 1** | Enter `phase = "tieDecision"`; show **banner**: "Tip: flip a coin or rock paper scissors — the winner is the winner, use that and tap Winner A or B"; no popup; Winner A/B resolve tie |
+| **Tie, len(Q) == 0** | Invalid (should never happen)                                                                                                   |
 
 
 ---
@@ -232,7 +232,7 @@ OnField `t1 vs t2`, queue `[t3]`, user declares Tie:
 
 - Winner rotation: removes `q1` from queue, appends loser to end
 - Tie with 4+ teams: instantly rotates `q1 vs q2`, appends `A,B` to queue
-- Tie with 3 teams: enters `tieDecision` with queue length 1
+- Tie with 3 teams: enters `tieDecision` with queue length 1; banner (no popup): "flip coin or RPS, tap Winner A or B"
 - Undo restores full prior snapshot, including tieDecision phase
 - At all times: onField has 2; queue no dupes; every team accounted for
 
@@ -328,11 +328,13 @@ OnField `t1 vs t2`, queue `[t3]`, user declares Tie:
 ### M4a–M4b — Event System + Winner Rotation (Complete)
 
 **Event architecture**
+
 - Event types (`DECLARE_WINNER` wired)
 - Pure reducer: `applyEvent(state, event) -> nextState`
 - Dev-only invariant validation
 
 **Wiring**
+
 - LiveSession dispatches events upward (single dispatcher)
 - Dashboard: applyEvent → persist (PRIMARY + BACKUP) → setSession → re-render
 - Winner A/B buttons functional:
@@ -345,22 +347,26 @@ OnField `t1 vs t2`, queue `[t3]`, user declares Tie:
 ## Current Architecture
 
 **Routes**
+
 - `app/page.tsx` → Landing
 - `app/setup/page.tsx` → Setup form
 - `app/dashboard/page.tsx` → Session controller (load + event handling)
 
 **Components**
+
 - `components/landing-page.tsx`
 - `components/dashboard/setup-form.tsx`
 - `components/dashboard/live-session.tsx`
 
 **Storage**
+
 - `lib/storage/constants.ts` — types + keys
 - `lib/storage/session.ts` — `createSession()`
 - `lib/storage/writer.ts` — `saveSession()` + clear
 - `lib/storage/loader.ts` — `loadSession()` + TTL check
 
 **Events**
+
 - `lib/events/types.ts` — event union
 - `lib/events/reducer.ts` — `applyEvent()`
 - `lib/events/invariants.ts` — `validateInvariants()` (dev)
@@ -401,7 +407,7 @@ lib/
 
 **Working:** M1–M4b complete (landing, setup, live display, winner rotation, persistence).
 
-**Next:** M5 — Tie button + 3-team tie decision popup.
+**Next:** M5 — Tie button + 3-team tie banner (no popup).
 
 **Not yet:** M5–M8 per milestone map below.
 
@@ -410,6 +416,7 @@ lib/
 ## Requirements Check
 
 **Met:**
+
 - Min 3 teams (3–8 supported)
 - Exactly 2 teams on field
 - Queue ordered, no duplicates (invariant validated)
@@ -419,7 +426,8 @@ lib/
 - Setup creates initial order correctly
 
 **Not yet (later milestones):**
-- Tie handling (DECLARE_TIE + 3-team tieDecision popup) → M5
+
+- Tie handling (DECLARE_TIE + 3-team tie banner) → M5
 - Undo capped to 3 snapshots → M6
 - Settings panel (Edit/Add/Remove/Reset) → M7
 - Rolling TTL (any interaction + throttling) → M8
@@ -428,12 +436,13 @@ lib/
 
 ## What Is NOT Implemented Yet
 
-| Area                    | Milestone | Status  |
-| ----------------------- | --------- | ------- |
-| Tie + 3-team popup      | M5        | Next    |
-| Undo (cap 3)            | M6        | Pending |
-| Settings panel          | M7        | Pending |
-| Rolling TTL             | M8        | Pending |
+
+| Area               | Milestone | Status  |
+| ------------------ | --------- | ------- |
+| Tie + 3-team banner | M5       | Next    |
+| Undo (cap 3)       | M6        | Pending |
+| Settings panel     | M7        | Pending |
+| Rolling TTL        | M8        | Pending |
 
 
 ---
@@ -461,10 +470,10 @@ lib/
 - M4c: DECLARE_TIE transition (immediate rotate or tieDecision)
 - M4d: Wire Tie button (Undo stays disabled until M6)
 
-**M5 — Tie Button + 3-Team Tie Decision Popup** (next)
+**M5 — Tie Button + 3-Team Tie Banner** (next)
 
-- DECLARE_TIE: queue ≥ 2 → rotate q1 vs q2; queue == 1 → enter tieDecision, show popup
-- Popup: “Who stays? A or B” → RESOLVE_TIE_STAY
+- DECLARE_TIE: queue ≥ 2 → rotate q1 vs q2; queue == 1 → enter tieDecision
+- 3-team UX: Banner "Tip: flip a coin or rock paper scissors — the winner is the winner. Use that result and tap Winner A or Winner B." Winner A/B resolve (RESOLVE_TIE_STAY)
 - Scope: Tie functional; Undo remains disabled
 
 **M6 — Undo (up to 3)**
@@ -491,7 +500,7 @@ lib/
 
 ## Next Action
 
-**M5** — Tie button + 3-team tie decision popup. Implement DECLARE_TIE (immediate rotate or tieDecision phase), RESOLVE_TIE_STAY for 3-team case. Undo remains disabled.
+**M5** — Tie button + 3-team tie banner. DECLARE_TIE (immediate rotate or tieDecision phase). For 3-team: banner "flip coin or RPS, tap Winner A or B" — no popup. Winner A/B resolve. Undo remains disabled.
 
 **Reality check:** MVP playable for win rotations; ties happen often — next blocker is Tie support.
 
